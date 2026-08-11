@@ -34,4 +34,19 @@
     #attributed-channel-name { display: none !important; }
   `;
   (document.head || document.documentElement).appendChild(s);
+
+  // Subs off by default (once per video; manual enable OK)
+  function subsOff() {
+    const p = document.getElementById('movie_player');
+    if (p?.unloadModule) try { p.unloadModule('captions'); } catch {}
+    const btn = document.querySelector('.ytp-subtitles-button[aria-pressed="true"]');
+    if (btn) btn.click();
+  }
+  function schedule() {
+    setTimeout(subsOff, 500);
+    setTimeout(subsOff, 1500);
+  }
+  document.addEventListener('yt-navigate-finish', schedule);
+  document.addEventListener('yt-player-updated', schedule);
+  schedule();
 })();

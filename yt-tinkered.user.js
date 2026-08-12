@@ -20,26 +20,25 @@
   `;
   (document.head || document.documentElement).appendChild(s);
 
-  function off() {
+  const mo = new MutationObserver(tick);
+  function tick() {
     const p = document.getElementById('movie_player');
-    if (p?.unloadModule) try { p.unloadModule('captions'); } catch {}
+    try { p?.unloadModule?.('captions'); } catch {}
     document.querySelector('.ytp-subtitles-button[aria-pressed="true"]')?.click();
-    if (!p) return;
+    if (!p) {
+      return;
+    }
+    if (!p.dataset.ytc) {
+      p.dataset.ytc = '1';
+      mo.observe(p, { childList: true, subtree: true });
+    }
     for (const el of p.querySelectorAll('button, [role="button"]')) {
-      if (/^(Ocultar|Hide|Mostrar|Show)$/.test(el.textContent.replace(/\s+/g, ' ').trim()))
-        el.style.setProperty('display', 'none', 'important');
+      if (/^(Ocultar|Hide|Mostrar|Show)$/.test(el.textContent.replace(/\s+/g, ' ').trim())) {
+        el.hidden = true;
+      }
     }
   }
 
-  const mo = new MutationObserver(off);
-  function hook() {
-    const p = document.getElementById('movie_player');
-    if (!p || p.dataset.ytc) return;
-    p.dataset.ytc = '1';
-    mo.observe(p, { childList: true, subtree: true });
-    off();
-  }
-
-  document.addEventListener('yt-navigate-finish', hook);
-  hook();
+  document.addEventListener('yt-navigate-finish', tick);
+  tick();
 })();

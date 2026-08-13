@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YT Tinkered
 // @description  Compact YT sidebar thumbs; hide endcards, branding; captions off
-// @version      1.0.0
+// @version      1.0.2
 // @match        *://www.youtube.com/*
 // @run-at       document-start
 // @grant        none
@@ -20,11 +20,9 @@
   `;
   (document.head || document.documentElement).appendChild(s);
 
-  const mo = new MutationObserver(tick);
-  function tick() {
+  const mo = new MutationObserver(endOff);
+  function endOff() {
     const p = document.getElementById('movie_player');
-    try { p?.unloadModule?.('captions'); } catch {}
-    document.querySelector('.ytp-subtitles-button[aria-pressed="true"]')?.click();
     if (!p) {
       return;
     }
@@ -39,6 +37,16 @@
     }
   }
 
-  document.addEventListener('yt-navigate-finish', tick);
-  tick();
+  let capsT;
+  function onNav() {
+    endOff();
+    clearTimeout(capsT);
+    capsT = setTimeout(() => {
+      try { document.getElementById('movie_player')?.unloadModule?.('captions'); } catch {}
+      document.querySelector('.ytp-subtitles-button[aria-pressed="true"]')?.click();
+    }, 1000);
+  }
+
+  document.addEventListener('yt-navigate-finish', onNav);
+  onNav();
 })();

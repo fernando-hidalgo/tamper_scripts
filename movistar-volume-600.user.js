@@ -1,13 +1,13 @@
+/* eslint-disable userscripts/no-invalid-headers -- Tampermonkey @allFrames */
 // ==UserScript==
 // @name         Movistar+ volume 600%
 // @namespace    https://github.com/tamper-scripts
-// @version      1.3.0
-// @description  Boost Movistar+ tab audio to 600% via Web Audio GainNode; K toggles play/pause
+// @version      1.3.1
+// @description  Boost Movistar+ tab audio to 600% via Web Audio GainNode; K/Space toggles play/pause
 // @match        *://*.movistarplus.es/*
 // @match        *://movistarplus.es/*
 // @run-at       document-idle
 // @grant        none
-// eslint-disable-next-line userscripts/no-invalid-headers -- Tampermonkey @allFrames
 // @allFrames    true
 // ==/UserScript==
 
@@ -16,7 +16,7 @@
   const wired = new WeakSet();
   let ctx;
   let gain;
-  /** Last media that fired timeupdate — for K toggle. */
+  /** Last media that fired timeupdate — for K/Space toggle. */
   let media;
 
   // Don't attach MediaElementSource before setMediaKeys() — kills Widevine.
@@ -57,7 +57,12 @@
   document.addEventListener(
     "keydown",
     (e) => {
-      if (e.code !== "KeyK" || e.ctrlKey || e.metaKey || e.altKey) {
+      if (
+        (e.code !== "KeyK" && e.code !== "Space") ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey
+      ) {
         return;
       }
       if (e.target.closest?.("input,textarea,select,[contenteditable]")) {
@@ -67,6 +72,7 @@
         return;
       }
       e.preventDefault();
+      e.stopPropagation();
       if (media.paused) {
         media.play().catch(() => {});
       } else {

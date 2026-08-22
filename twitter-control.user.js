@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Twitter Media → Photos / Profile → Posts
+// @name         Twitter Control
 // @namespace    https://github.com/tamper-scripts
-// @version      1.2.1
-// @description  Default Media to photos and profile tab to Posts (/all) on Twitter/X
+// @version      1.8.0
+// @description  Default Media to photos, profile tab to Posts (/all), video volume max on Twitter/X
 // @match        https://x.com/*
 // @match        https://twitter.com/*
 // @run-at       document-start
@@ -69,4 +69,19 @@
 
   const boot = prefer(location.href, location.pathname);
   if (boot) go(boot);
+
+  function pin(prop, value) {
+    const d = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, prop);
+    Object.defineProperty(HTMLMediaElement.prototype, prop, {
+      configurable: true,
+      enumerable: d.enumerable,
+      get() {
+        return d.get.call(this);
+      },
+      set() {
+        d.set.call(this, value);
+      },
+    });
+  }
+  pin("volume", 1);
 })();

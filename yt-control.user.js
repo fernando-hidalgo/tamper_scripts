@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         YT Tinkered
+// @name         YT Control
 // @description  Compact YT sidebar thumbs; hide endcards, branding; captions off
 // @version      1.0.2
 // @match        *://www.youtube.com/*
